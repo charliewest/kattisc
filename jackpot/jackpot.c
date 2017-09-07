@@ -3,6 +3,8 @@
 #include <string.h>
 
 void flush_stdin();
+unsigned int getLeastCommonMultiple(int wheelPeriodicities[], int numberOfWheels);
+
 const int PERIODICITY_STRING_LENGTH = 100;
 
 int main() {
@@ -40,11 +42,51 @@ int main() {
             }
         }
         
-        //lcm = getLeastCommonMultiplier(wheelPeriodicities)
+        unsigned int leastCommonMultiple = getLeastCommonMultiple(wheelPeriodicities, numberOfWheels);
+        if (leastCommonMultiple != -1) {
+            printf("%d", leastCommonMultiple);
+        }
+        else {
+            printf("More than a billion.");
+        }
         
     }
     
     return 0;
+}
+
+unsigned int getHighestValueInArray(int integerArray[], int numberOfItems) {
+    int highestValue = integerArray[0];
+    for (int i = 0; i < numberOfItems; i++) {
+        if (integerArray[i] > highestValue) {
+            highestValue = integerArray[i];
+        }
+    }
+    return highestValue;
+}
+
+unsigned int getLeastCommonMultiple(int wheelPeriodicities[], int numberOfItems) {
+    unsigned int highestValue = getHighestValueInArray(wheelPeriodicities, numberOfItems);
+    unsigned int checkedValue = highestValue;
+    int commonMultipleFound = 0;
+    while (!commonMultipleFound) { // Loop until found
+        commonMultipleFound = 1;
+        for (int i = 0; i < numberOfItems; i++) {
+            if (checkedValue % wheelPeriodicities[i] != 0) {
+                commonMultipleFound = 0;
+                break;
+            }
+        }
+        if (!commonMultipleFound) {
+            checkedValue += highestValue;
+            //printf("%u\n", checkedValue);
+        }
+        if (checkedValue > 10000000000) {
+            return -1;
+        }
+    }
+    
+    return checkedValue;
 }
 
 void flush_stdin() {

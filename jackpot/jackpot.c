@@ -3,15 +3,17 @@
 #include <string.h>
 
 void flush_stdin();
-unsigned int getLeastCommonMultiple(int wheelPeriodicities[], int numberOfWheels);
+long long getLeastCommonMultiple(long long wheelPeriodicities[], int numberOfWheels);
 
 const int PERIODICITY_STRING_LENGTH = 100;
 
 int main() {
-    
+   
     int numberOfMachines = 0;
     scanf("%d", &numberOfMachines);
     //printf("%d machines.\n", numberOfMachines);
+    
+    long long answers[numberOfMachines];
     
     for (int i = 0; i < numberOfMachines; i++) {
         int numberOfWheels = 0;
@@ -19,7 +21,7 @@ int main() {
         // printf("%d wheels for machine %i.\n", numberOfWheels, (i + 1));
         flush_stdin();
         
-        int wheelPeriodicities[numberOfWheels];
+        long long wheelPeriodicities[numberOfWheels];
         char periodicity[PERIODICITY_STRING_LENGTH];
         scanf( "%99[^\n]", periodicity);
         
@@ -30,63 +32,53 @@ int main() {
                         wheelIndex < numberOfWheels; i++) {
             if (periodicity[i] == ' ' ||
                 periodicity[i] == '\0') {
+                // printf("Found blank space at %d, creating a buffer of size %d.", i, bufferSize);
                 int bufferSize = i - startIndex;
-                printf("Found blank space at %d, creating a buffer of size %d.", i, bufferSize);
                 char buffer[bufferSize + 1];
-                buffer[bufferSize + 1] = '\0';
+                buffer[bufferSize] = '\0';
                 memcpy(buffer, &periodicity[startIndex], bufferSize);
-                wheelPeriodicities[wheelIndex] = atoi(buffer);
-                printf("\nInteger value %d.\n", wheelPeriodicities[wheelIndex]);
+                wheelPeriodicities[wheelIndex] = atoll(buffer);
+                
                 startIndex = i + 1;
                 wheelIndex++;
             }
         }
         
-        unsigned int leastCommonMultiple = getLeastCommonMultiple(wheelPeriodicities, numberOfWheels);
-        if (leastCommonMultiple != -1) {
-            printf("%d", leastCommonMultiple);
+        long long leastCommonMultiple = getLeastCommonMultiple(wheelPeriodicities,
+                                                               numberOfWheels);
+        answers[i] = leastCommonMultiple;
+    }
+
+    for (int i = 0; i < numberOfMachines; i++) {
+        if (answers[i] != 0) {
+            printf("%lld", answers[i]);
         }
         else {
             printf("More than a billion.");
         }
-        
+        if (i == numberOfMachines - 1)
+            break;
+        printf("\n");
     }
+
     
     return 0;
 }
 
-unsigned int getHighestValueInArray(int integerArray[], int numberOfItems) {
-    int highestValue = integerArray[0];
-    for (int i = 0; i < numberOfItems; i++) {
-        if (integerArray[i] > highestValue) {
-            highestValue = integerArray[i];
-        }
-    }
-    return highestValue;
+long long getGreatestCommonDivisor(long long a, long long b) {
+    if (b == 0) // We are done
+        return a;
+    return getGreatestCommonDivisor(b, a%b);
 }
 
-unsigned int getLeastCommonMultiple(int wheelPeriodicities[], int numberOfItems) {
-    unsigned int highestValue = getHighestValueInArray(wheelPeriodicities, numberOfItems);
-    unsigned int checkedValue = highestValue;
-    int commonMultipleFound = 0;
-    while (!commonMultipleFound) { // Loop until found
-        commonMultipleFound = 1;
-        for (int i = 0; i < numberOfItems; i++) {
-            if (checkedValue % wheelPeriodicities[i] != 0) {
-                commonMultipleFound = 0;
-                break;
-            }
-        }
-        if (!commonMultipleFound) {
-            checkedValue += highestValue;
-            //printf("%u\n", checkedValue);
-        }
-        if (checkedValue > 10000000000) {
-            return -1;
-        }
+long long getLeastCommonMultiple(long long wheelPeriodicities[], int numberOfWheels) {
+    long long res = 1;
+    for (int i = 0; i < numberOfWheels; i++) {
+        res = res * wheelPeriodicities[i] / getGreatestCommonDivisor(res, wheelPeriodicities[i]);
+        if (res > 10000000000)
+            return 0;
     }
-    
-    return checkedValue;
+    return res;
 }
 
 void flush_stdin() {
